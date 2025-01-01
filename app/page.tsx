@@ -114,7 +114,7 @@ export default function Home() {
       const formData = new FormData();
       formData.append('image', selectedFile);
 
-      const response = await fetch('http://localhost:5000/api/predict', {
+      const response = await fetch('https://web-production-c91eb.up.railway.app/api/predict', {
         method: 'POST',
         body: formData,
       });
