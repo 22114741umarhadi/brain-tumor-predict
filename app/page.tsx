@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react';
-import { Upload, AlertCircle, Loader2, ImageIcon, XCircle, Brain } from 'lucide-react';
+import { Upload, Loader2, ImageIcon, XCircle, Brain } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import type { PredictionResponse, APIError, FileWithPreview, UploadStatus, ValidationResult } from '@/types';
+import type { PredictionResponse, APIError, UploadStatus, ValidationResult } from '@/types';
+import Image from 'next/image';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif'] as const;
@@ -51,14 +52,6 @@ export default function Home() {
     e.stopPropagation();
   };
 
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>): void => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const file = e.dataTransfer.files[0];
-    handleFileSelection(file);
-  }, []);
-
   const handleFileSelection = useCallback((file: File): void => {
     const validation = validateFile(file);
     if (!validation.isValid) {
@@ -78,6 +71,14 @@ export default function Home() {
     setPreview(URL.createObjectURL(file));
     setPredictionResult(null);
   }, [preview, toast]);
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>): void => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files[0];
+    handleFileSelection(file);
+  }, [handleFileSelection]);
 
   const handleFileInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
@@ -210,8 +211,10 @@ export default function Home() {
                     <XCircle className="w-4 h-4" />
                   </Button>
                 </div>
-                <img
+                <Image
                   src={preview}
+                  width={500}
+                  height={500}
                   alt="Brain scan preview"
                   className="w-full h-72 object-contain bg-black/5 backdrop-blur-sm"
                 />
@@ -254,8 +257,8 @@ export default function Home() {
               <Alert
                 variant={predictionResult.prediction.includes("No tumor") ? "default" : "destructive"}
                 className={`transform transition-all duration-300 shadow-lg ${predictionResult.prediction.includes("No tumor")
-                    ? "bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-l-green-500"
-                    : "bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-l-red-500"
+                  ? "bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-l-green-500"
+                  : "bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-l-red-500"
                   }`}
               >
                 <AlertTitle className="text-lg font-semibold flex items-center gap-3">
@@ -272,8 +275,8 @@ export default function Home() {
                   <div className="flex items-center gap-3 pt-2 border-t border-gray-200">
                     <span className="text-sm text-gray-600">Confidence Level:</span>
                     <span className={`text-sm font-semibold px-3 py-1 rounded-full ${predictionResult.confidence_class === 1
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
                       }`}>
                       {predictionResult.confidence_class === 1 ? "High" : "Low"}
                     </span>
